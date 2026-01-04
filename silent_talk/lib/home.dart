@@ -159,9 +159,7 @@ class _SilentHomeState extends State<SilentHome> {
                                 vertical: 12,
                               ),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                  10,
-                                ),
+                                borderRadius: BorderRadius.circular(10),
                               ),
                             ),
                             child: const Text('Start Camera'),
@@ -265,16 +263,14 @@ class _SilentHomeState extends State<SilentHome> {
                               backgroundColor: Colors.deepPurpleAccent,
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 110,
+                                horizontal: 100,
                                 vertical: 12,
                               ),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                  10,
-                                ),
+                                borderRadius: BorderRadius.circular(10),
                               ),
                             ),
-                            child: const Text('Start Camera'),
+                            child: const Text('Start Listening'),
                           ),
                           const SizedBox(height: 15),
                         ],
@@ -292,9 +288,22 @@ class _SilentHomeState extends State<SilentHome> {
         child: BottomNavigationBar(
           currentIndex: selectedIndex,
           onTap: (index) {
-            setState(() {
-              selectedIndex = index;
-            });
+            if (index == 1) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SilentHome()),
+              );
+            } else if (index == 2) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const VoiceScreen()),
+              );
+            } else if (index == 3) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const VoiceScreen()),
+              );
+            }
           },
 
           backgroundColor: Colors.transparent,
