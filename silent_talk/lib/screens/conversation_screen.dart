@@ -1,21 +1,23 @@
 
+
 import 'package:flutter/material.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
 
-
-class RealTimeChatApp extends StatelessWidget {
-  const RealTimeChatApp({super.key});
+class ConversationScreen extends StatefulWidget {
+  const ConversationScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: ConversationScreen(),
-    );
-  }
+  State<ConversationScreen> createState() => _ConversationScreenState();
 }
 
-class ConversationScreen extends StatelessWidget {
-  const ConversationScreen({super.key});
+class _ConversationScreenState extends State<ConversationScreen> {
+  final List<Map<String, String>> _messages = [
+    {"sender": "assistant", "text": "Hello! How can I help you today?"},
+    {"sender": "user", "text": "I need directions to the nearest pharmacy."},
+    {"sender": "assistant", "text": "Sure! The closest one is 5 minutes walk from here."},
+  ];
+
+  bool _isDetecting = false;
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +55,10 @@ class ConversationScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Row(
         children: [
-          const Icon(Icons.arrow_back, color: Colors.white),
+          GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: const Icon(Icons.arrow_back, color: Colors.white),
+          ),
           const SizedBox(width: 12),
           const Text(
             "Sarah",
@@ -101,62 +106,23 @@ class ConversationScreen extends StatelessWidget {
   }
 
   Widget _chatArea() {
-    return Stack(
-      children: [
-        ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          children: [
-            const Text(
-              "Sarah (Speech)",
-              style: TextStyle(color: Colors.white38, fontSize: 11),
-            ),
-            const SizedBox(height: 6),
-            _assistantBubble(
-              "Hi, can I help you find something today?",
-            ),
-            const SizedBox(height: 16),
-            const Align(
-              alignment: Alignment.centerRight,
-              child: Text(
-                "You (Sign)",
-                style: TextStyle(color: Colors.white38, fontSize: 11),
-              ),
-            ),
-            const SizedBox(height: 6),
-            _userBubble(
-              "Yes, looking for the pharmacy.",
-            ),
-            const SizedBox(height: 16),
-            _detectingBubble(),
-          ],
-        ),
-
-        Positioned(
-          right: 16,
-          bottom: 20,
-          child: Container(
-            width: 120,
-            height: 160,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.4),
-                  blurRadius: 10,
-                ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: Image.asset(
-                "assets/hand.jpg",
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-        ),
-      ],
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      itemCount: _messages.length,
+      itemBuilder: (context, index) {
+        final msg = _messages[index];
+        if (msg["sender"] == "assistant") {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _assistantBubble(msg["text"]!),
+          );
+        } else {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _userBubble(msg["text"]!),
+          );
+        }
+      },
     );
   }
 
@@ -166,7 +132,8 @@ class ConversationScreen extends StatelessWidget {
       children: [
         const CircleAvatar(
           radius: 18,
-          backgroundImage: AssetImage("assets/avatar.jpg"),
+          backgroundColor: Color(0xFF6A3CFF),
+          child: Icon(Icons.person, color: Colors.white),
         ),
         const SizedBox(width: 10),
         Container(
@@ -205,27 +172,6 @@ class ConversationScreen extends StatelessWidget {
     );
   }
 
-  Widget _detectingBubble() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: const Color(0xFF6A3CFF),
-          style: BorderStyle.solid,
-          width: 1,
-        ),
-      ),
-      child: const Text(
-        "Detecting signs...",
-        style: TextStyle(
-          color: Color(0xFF6A3CFF),
-          fontSize: 13,
-        ),
-      ),
-    );
-  }
-
   Widget _quickReplies() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -241,11 +187,16 @@ class ConversationScreen extends StatelessWidget {
             spacing: 8,
             children: ["Yes", "No", "Thanks", "One moment"]
                 .map(
-                  (e) => Chip(
-                    backgroundColor: const Color(0xFF1C162C),
-                    label: Text(
-                      e,
-                      style: const TextStyle(color: Colors.white),
+                  (e) => GestureDetector(
+                    onTap: () {
+                      // Add message and speak
+                      setState(() {
+                        _messages.add({"sender": "user", "text": e});
+                      });
+                    },
+                    child: Chip(
+                      backgroundColor: const Color(0xFF1C162C),
+                      label: Text(e, style: const TextStyle(color: Colors.white)),
                     ),
                   ),
                 )
@@ -271,8 +222,7 @@ class ConversationScreen extends StatelessWidget {
     );
   }
 
-  Widget _circleButton(IconData icon,
-      {bool active = false, bool danger = false}) {
+  Widget _circleButton(IconData icon, {bool active = false, bool danger = false}) {
     return Container(
       width: 54,
       height: 54,
