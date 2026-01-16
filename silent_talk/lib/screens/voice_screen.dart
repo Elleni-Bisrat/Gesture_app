@@ -40,7 +40,6 @@ class _VoiceScreenState extends State<VoiceScreen> {
                 _isListening = true;
               } else if (status == "notListening" || status == "done") {
                 _isListening = false;
-                // Add temp words as final if we have them
                 if (_tempWords.isNotEmpty) {
                   _addMessage(_tempWords, sender: "Me");
                   _tempWords = "";
@@ -122,15 +121,12 @@ class _VoiceScreenState extends State<VoiceScreen> {
           if (mounted) {
             setState(() {
               if (result.finalResult) {
-                // Final result
                 _lastWords = result.recognizedWords;
                 _tempWords = "";
-                // Add to messages immediately
                 if (_lastWords.trim().isNotEmpty) {
                   _addMessage(_lastWords, sender: "Me");
                 }
               } else {
-                // Partial result
                 _tempWords = result.recognizedWords;
               }
             });
@@ -143,7 +139,6 @@ class _VoiceScreenState extends State<VoiceScreen> {
         cancelOnError: true,
         listenMode: ListenMode.dictation,
         onSoundLevelChange: (level) {
-          // Optional: You can use this for visual feedback
           print("Sound level: $level");
         },
       );
@@ -172,7 +167,6 @@ class _VoiceScreenState extends State<VoiceScreen> {
       if (mounted) {
         setState(() {
           _isListening = false;
-          // Add any remaining temp words
           if (_tempWords.isNotEmpty) {
             _addMessage(_tempWords, sender: "Me");
             _tempWords = "";
@@ -202,17 +196,14 @@ class _VoiceScreenState extends State<VoiceScreen> {
     });
 
     if (sender == "Me") {
-      // Wait a bit then respond
       await Future.delayed(const Duration(milliseconds: 500));
       
-      // Generate response
       String response = _generateResponse(text);
       
       setState(() {
         _messages.add({"sender": "Assistant", "text": response});
       });
       
-      // Speak the response
       await _speak(response);
     }
   }
@@ -369,7 +360,7 @@ class _VoiceScreenState extends State<VoiceScreen> {
           
           int messageIndex = _tempWords.isNotEmpty ? index - 1 : index;
           if (_messages.isEmpty) {
-            return Container(); // Return empty container if no messages
+            return Container();
           }
           final msg = _messages[_messages.length - 1 - messageIndex];
           
